@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanEats - Detalhes da Receita</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #F0EAD6;
+            color: #333;
+        }
+
+
+        .app-header {
+            background-color: #FFB366;
+            padding: 1rem;
+            padding-bottom: 1.5rem;
+            border: 2px solid #333;
+            border-top: none;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            gap: 0.5rem;
+        }
+
+        .nav-item i {
+            font-size: 2.5rem;
+        }
+
+
+        .main-content {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .recipe-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .recipe-image {
+            width: 100%;
+            border-radius: 15px;
+            margin-bottom: 2.5rem;
+        }
+        
+
+        .recipe-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .recipe-section h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 0.5rem;
+        }
+
+        .recipe-section p, .recipe-section li {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .recipe-section ol {
+            padding-left: 20px;
+        }
+
+        .ingredients-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 2rem;
+        }
+
+        .info-details {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 20px;
+            border: 2px solid #333;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-discard {
+            background-color: #FF6347;
+            color: white;
+        }
+
+        .btn-save {
+            background-color: #90EE90;
+            color: #333;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <nav>
+            <a href="Geladeira.html" class="nav-item">
+                <i class="fa-solid fa-stroopwafel"></i>
+                <span>Geladeira</span>
+            </a>
+            <a href="GerarReceita.html" class="nav-item">
+                <i class="fa-solid fa-book"></i>
+                <span>Gerar Receita</span>
+            </a>
+            <a href="Receitas.html" class="nav-item">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Receitas</span>
+            </a>
+            <a href="login.html" class="nav-item">
+                <i class="fa-solid fa-user"></i>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <h2 class="recipe-title">Receita: Hamburguer Fitness</h2>
+        <img src="Hamburguer.png" alt="Foto de um hamburguer fitness" class="recipe-image">
+
+        <section class="recipe-section">
+            <h3>Descrição</h3>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus. Nulla quis imperdiet augue. Vestibulum ultricies leo, non suscipit magna interdum eu.</p>
+        </section>
+
+        <section class="recipe-section">
+            <h3>Modo de preparo</h3>
+            <ol>
+                <li>Lorem ipsum dolor sit amet consectetur adipisicing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris.</li>
+                <li>Lorem ipsum dolor sit amet consectetur adipisicing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris.</li>
+                <li>Lorem ipsum dolor sit amet consectetur adipisicing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris.</li>
+                <li>Lorem ipsum dolor sit amet consectetur adipisicing elit Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris.</li>
+            </ol>
+        </section>
+        
+        <section class="recipe-section">
+            <h3>Ingredientes</h3>
+            <div class="ingredients-list">
+                <p>3 - Lorem Ipsum</p>
+                <p>2 - Lorem Ipsum</p>
+                <p>3 - Lorem Ipsum</p>
+                <p>1 - Lorem Ipsum</p>
+            </div>
+        </section>
+        
+        <section class="recipe-section">
+            <h3>Informações</h3>
+            <div class="info-details">
+                <span>Tempo de Preparo: 30 minutos</span>
+                <span>Custo aproximado ( R$ ): 60,00</span>
+            </div>
+        </section>
+
+        <div class="action-buttons">
+            <button class="btn btn-discard" onclick="window.location.href='Receitas.html'">Descartar receita</button>
+            <button class="btn btn-save" onclick="window.location.href='Receitas.html'">Salvar receita</button>
+        </div>
+    </main>
+
+</body>
+</html>

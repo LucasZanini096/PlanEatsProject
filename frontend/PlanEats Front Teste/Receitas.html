@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanEats - Minhas Receitas</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #F0EAD6; 
+            color: #333;
+        }
+
+
+        .app-header {
+            background-color: #FFB366;
+            padding: 1rem;
+            padding-bottom: 1.5rem;
+            border: 2px solid #333;
+            border-top: none;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            gap: 0.5rem;
+        }
+
+        .nav-item i {
+            font-size: 2.5rem;
+        }
+
+
+        .main-content {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-top: 1rem;
+            margin-bottom: 3rem;
+        }
+
+
+        .recipes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; 
+        }
+
+        .recipe-item-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .recipe-item {
+            display: flex;
+            align-items: center; 
+            background-color: #fff;
+            border: 2px solid #333;
+            border-radius: 15px;
+            overflow: hidden; 
+            text-align: left;
+            transition: transform 0.2s ease;
+        }
+
+        .recipe-item:hover {
+            transform: scale(1.02); 
+        }
+        
+        .recipe-item img {
+            width: 100px;
+            height: 80px;
+            object-fit: cover; 
+        }
+        
+        .recipe-name {
+            flex-grow: 1; 
+            padding: 0 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .delete-btn {
+            background-color: #FFB366;
+            border: none;
+            padding: 0 2rem;
+            align-self: stretch;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .delete-btn:hover {
+            background-color: #ff9f43;
+        }
+
+        .delete-btn i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <nav>
+            <a href="Geladeira.html" class="nav-item">
+                <i class="fa-solid fa-stroopwafel"></i>
+                <span>Geladeira</span>
+            </a>
+            <a href="GerarReceita.html" class="nav-item">
+                <i class="fa-solid fa-book"></i>
+                <span>Gerar Receita</span>
+            </a>
+            <a href="Receitas.html" class="nav-item">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Receitas</span>
+            </a>
+            <a href="login.html" class="nav-item">
+                <i class="fa-solid fa-user"></i>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <h2>Minhas receitas</h2>
+        
+        <div class="recipes-list">
+            <a href="SalvarReceita.html" class="recipe-item-link">
+                <div class="recipe-item">
+                    <img src="Hamburguer.png" alt="Foto de um hamburguer">
+                    <p class="recipe-name">Hamburguer fitness</p>
+                    <button class="delete-btn">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </a>
+            
+            <a href="SalvarReceita.html" class="recipe-item-link">
+                <div class="recipe-item">
+                    <img src="Hamburguer.png" alt="Foto de um hamburguer">
+                    <p class="recipe-name">Hamburguer fitness</p>
+                    <button class="delete-btn">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </a>
+            
+            <a href="SalvarReceita.html" class="recipe-item-link">
+                <div class="recipe-item">
+                    <img src="Hamburguer.png" alt="Foto de um hamburguer">
+                    <p class="recipe-name">Hamburguer fitness</p>
+                    <button class="delete-btn">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </a>
+        </div>
+    </main>
+
+</body>
+</html>

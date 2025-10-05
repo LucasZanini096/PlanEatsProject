@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanEats - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Estilos Gerais */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            background-color: #F0EAD6;
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        .image-panel {
+            width: 50%;
+            height: 100%;
+        }
+
+        .image-panel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+        }
+
+
+        .form-panel {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .form-content {
+            background-color: #FFB366;
+            padding: 3rem;
+            border-radius: 25px;
+            border: 2px solid #333;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        /* Logo e Slogan */
+        .logo {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 0;
+            color: #007BFF;
+        }
+
+        .logo-eats {
+            color: #28a745;
+        }
+
+        .slogan {
+            font-size: 1.1rem;
+            font-family: 'Courier New', Courier, monospace;
+            color: #543D2B;
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #543D2B;
+            display: inline-block;
+        }
+        
+
+        form {
+            text-align: left;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        form input[type="email"],
+        form input[type="password"] {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #333;
+            border-radius: 15px;
+            background-color: #E0E0E0;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .admin-checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-checkbox input {
+            margin-right: 0.5rem;
+        }
+        
+        .admin-checkbox label {
+            margin-bottom: 0;
+        }
+
+        /* Botões */
+        .btn {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 20px;
+            border: 2px solid #333;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-login {
+            background-color: #90EE90; 
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .btn-login:hover {
+            background-color: #7CFC00;
+        }
+
+        .signup-text {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 0;
+        }
+
+        .btn-signup {
+            background-color: #007BFF;
+            color: white;
+        }
+        .btn-signup:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="image-panel">
+            <img src="comida.png" alt="Ingredientes frescos como salmão, tomate, alho e limão">
+        </div>
+        <div class="form-panel">
+            <div class="form-content">
+                <h1 class="logo">Plan<span class="logo-eats">Eats</span></h1>
+                <p class="slogan">Menos desperdício, mais sabor</p>
+                
+                <form action="Geladeira.html">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email">
+                    
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha">
+                    
+                    <div class="admin-checkbox">
+                        <input type="checkbox" id="admin" name="admin">
+                        <label for="admin">Administrador?</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-login">LOGIN</button>
+                </form>
+                
+                <p class="signup-text">Ainda não tem uma conta?</p>
+                <button class="btn btn-signup" onclick="window.location.href='Cadastro.html'">CADASTRE-SE</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
