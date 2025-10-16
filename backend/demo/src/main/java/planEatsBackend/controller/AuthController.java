@@ -1,0 +1,105 @@
+package planEatsBackend.controller;
+
+import java.util.Map;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import planEatsBackend.dto.RegisterRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import planEatsBackend.service.TokenBlacklistService;
+import planEatsBackend.security.JwtUtil;
+import planEatsBackend.dto.LoginRequest;
+import planEatsBackend.mapper.UsuarioMapper;
+import planEatsBackend.service.UsuarioService;
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private TokenBlacklistService tokenBlacklistService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getSenha())
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = jwtUtil.generateToken(loginRequest.getEmail());
+
+        // Retorna um JSON simples com o token; substitua por JwtResponse se preferir
+        return ResponseEntity.ok(Map.of("token", jwt, "type", "Bearer"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String token = extractJwtFromRequest(request);
+        if (token == null) {
+            return ResponseEntity.badRequest().body("Header Authorization ausente ou mal formatado");
+        }
+
+        try {
+            // pega data de expiração do token e calcula TTL restante em ms
+            java.util.Date exp = jwtUtil.extractExpiration(token);
+            long ttl = exp.getTime() - System.currentTimeMillis();
+
+            if (ttl <= 0) {
+                // token já expirado — ainda podemos colocar um TTL curto na blacklist
+                tokenBlacklistService.blacklistToken(token, 60_000L); // 1 minuto
+            } else {
+                tokenBlacklistService.blacklistToken(token, ttl);
+            }
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Token inválido: " + e.getMessage());
+        }
+
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok("Logout realizado com sucesso.");
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest req) {
+        try {
+            var saved = usuarioService.register(req);
+            // retorna DTO mapeado sem senha
+            return ResponseEntity.status(201).body(UsuarioMapper.toDto(saved));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    private String extractJwtFromRequest(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || authHeader.isBlank()) return null;
+
+        String prefix = "Bearer ";
+        if (authHeader.length() > prefix.length() &&
+            authHeader.regionMatches(true, 0, prefix, 0, prefix.length())) {
+            String token = authHeader.substring(prefix.length()).trim();
+            return token.isEmpty() ? null : token;
+        }
+
+        String token = authHeader.trim();
+        return token.isEmpty() ? null : token;
+    }
+}
