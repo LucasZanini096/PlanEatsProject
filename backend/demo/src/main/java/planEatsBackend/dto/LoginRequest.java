@@ -8,6 +8,9 @@ public class LoginRequest {
   @NotBlank
   private String senha;
 
+  // Chave de admin como valor opcional
+  private String adminKey;
+
   public LoginRequest() {}
 
   public String getEmail() {
@@ -24,6 +27,14 @@ public class LoginRequest {
 
   public void setSenha(String senha) {
     this.senha = senha;
+  }
+
+  public String getAdminKey() {
+    return adminKey;
+  }
+
+  public void setAdminKey(String adminKey) {
+    this.adminKey = adminKey;
   }
 
 }
