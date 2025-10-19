@@ -1,37 +1,53 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import type { FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { authService } from '../services/auth';
 
 export default function LoginForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
-    senha: '',
+    email: "",
+    senha: "",
     admin: false,
+    adminCode: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
+
+    // Aqui você pode adicionar a lógica de login
+    console.log("Dados de login:", formData);
     setLoading(true);
+    setError(null);
     try {
-      await authService.signin({ email: formData.email, senha: formData.senha });
-      navigate('/geladeira');
+      await authService.signin(formData);
+      navigate("/geladeira");
     } catch (err: unknown) {
-      setError((err as Error)?.message ?? 'Falha no login');
-    } finally {
+      let message = "Erro ao fazer login";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      } else if (typeof err === "object" && err !== null && "message" in err) {
+        const maybeMessage = (err as { message?: unknown }).message;
+        if (typeof maybeMessage === "string") {
+          message = maybeMessage;
+        }
+      }
+      setError(message);
       setLoading(false);
-    }
+      return;
+    
   };
+}
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
@@ -50,6 +66,7 @@ export default function LoginForm() {
           required
           className="w-full p-3 mb-2 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
         />
+
         <label htmlFor="senha" className="block mb-2 font-semibold text-[#333]">
           Senha
         </label>
@@ -76,7 +93,26 @@ export default function LoginForm() {
           </label>
         </div>
 
-        {error && <p className="text-red-600 mb-3">{error}</p>}
+        {/* Renderiza o campo apenas quando admin for true */}
+        {formData.admin && (
+          <div className="mb-6">
+            <label
+              htmlFor="adminCode"
+              className="block mb-2 font-semibold text-[#333]"
+            >
+              Código do Administrador
+            </label>
+            <input
+              type="text"
+              id="adminCode"
+              name="adminCode"
+              value={formData.adminCode}
+              onChange={handleChange}
+              required={formData.admin} // required só quando admin === true
+              className="w-full p-3 mb-6 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
+            />
+          </div>
+        )}
 
         <button
           type="submit"
