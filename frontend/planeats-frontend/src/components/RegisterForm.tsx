@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authService } from '../services/auth';
 
 export default function RegisterForm() {
-
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nome: '',
@@ -11,21 +11,41 @@ export default function RegisterForm() {
     senha: '',
     confirmeSenha: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-    // Validação básica
+    setError(null);
+
     if (formData.senha !== formData.confirmeSenha) {
-      alert('As senhas não coincidem!');
+      setError('As senhas não coincidem!');
       return;
     }
-    
-    // Aqui você pode adicionar a lógica de cadastro
-    console.log('Dados do formulário:', formData);
-    
-    // Redirecionar para a página de geladeira
-    navigate('/geladeira');
+
+    setLoading(true);
+    try {
+      // cadastra
+      await authService.signup({
+        nome: formData.nome,
+        email: formData.email,
+        senha: formData.senha,
+        preferenciasAlimentares: "Maçã",
+        role: "USER"
+      });
+
+      // auto-login para já guardar o token
+      await authService.signin({
+        email: formData.email,
+        senha: formData.senha,
+      });
+
+      navigate('/geladeira');
+    } catch (error: unknown) {
+      setError((error as Error)?.message ?? 'Falha no cadastro');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,13 +55,10 @@ export default function RegisterForm() {
     });
   };
 
-  return(
+  return (
     <>
       <form onSubmit={handleSubmit} className="text-left">
-        <label
-          htmlFor="nome"
-          className="block mb-2 font-semibold text-[#333]"
-        >
+        <label htmlFor="nome" className="block mb-2 font-semibold text-[#333]">
           Nome
         </label>
         <input
@@ -54,10 +71,7 @@ export default function RegisterForm() {
           className="w-full p-3 mb-6 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
         />
 
-        <label
-          htmlFor="email"
-          className="block mb-2 font-semibold text-[#333]"
-        >
+        <label htmlFor="email" className="block mb-2 font-semibold text-[#333]">
           Email
         </label>
         <input
@@ -70,10 +84,7 @@ export default function RegisterForm() {
           className="w-full p-3 mb-6 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
         />
 
-        <label
-          htmlFor="senha"
-          className="block mb-2 font-semibold text-[#333]"
-        >
+        <label htmlFor="senha" className="block mb-2 font-semibold text-[#333]">
           Senha
         </label>
         <input
@@ -86,10 +97,7 @@ export default function RegisterForm() {
           className="w-full p-3 mb-6 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
         />
 
-        <label
-          htmlFor="confirmeSenha"
-          className="block mb-2 font-semibold text-[#333]"
-        >
+        <label htmlFor="confirmeSenha" className="block mb-2 font-semibold text-[#333]">
           Confirme sua senha
         </label>
         <input
@@ -99,10 +107,11 @@ export default function RegisterForm() {
           value={formData.confirmeSenha}
           onChange={handleChange}
           required
-          className="w-full p-3 mb-6 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
+          className="w-full p-3 mb-4 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
         />
 
-        {/* Grupo de Botões */}
+        {error && <p className="text-red-600 mb-3">{error}</p>}
+
         <div className="flex gap-4 mt-6">
           <button
             type="button"
@@ -113,14 +122,13 @@ export default function RegisterForm() {
           </button>
           <button
             type="submit"
-            className="w-1/2 p-3 rounded-[20px] border-2 border-[#333] text-lg font-bold cursor-pointer bg-[#007BFF] text-white hover:bg-[#0056b3] transition-colors duration-300"
+            disabled={loading}
+            className="w-1/2 p-3 rounded-[20px] border-2 border-[#333] text-lg font-bold cursor-pointer bg-[#007BFF] text-white hover:bg-[#0056b3] transition-colors duration-300 disabled:opacity-60"
           >
-            CRIAR CONTA
+            {loading ? 'Criando...' : 'CRIAR CONTA'}
           </button>
         </div>
       </form>
-    
     </>
-  )
-  
+  );
 }

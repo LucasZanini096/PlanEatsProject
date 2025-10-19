@@ -1,5 +1,8 @@
 package planEatsBackend.entities;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
@@ -11,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -40,6 +44,9 @@ public class Usuario {
   @Enumerated
   @Column(nullable = false)
   private Role role = Role.USER;
+
+  @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+  private List<Geladeira> geladeira;
 
 
   // Getters and Setters
@@ -90,5 +97,14 @@ public class Usuario {
   public void setRole(Role role) {
     this.role = role;
   } 
+
+
+  public List<Geladeira> getGeladeira() {
+    return geladeira;
+  }
+
+  public void setGeladeira(List<Geladeira> geladeira) {
+    this.geladeira = geladeira;
+  }
 
 }

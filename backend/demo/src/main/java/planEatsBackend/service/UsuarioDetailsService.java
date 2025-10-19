@@ -25,7 +25,7 @@ public class UsuarioDetailsService implements UserDetailsService {
 
         return User.withUsername(user.getEmail())
             .password(user.getSenhaHash())
-            .authorities(user.getRole().name())
+            .authorities("ROLE_" + user.getRole().name())
             .build();
     }
 }

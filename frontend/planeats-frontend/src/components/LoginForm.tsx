@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { authService } from '../services/auth';
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -10,16 +11,37 @@ export default function LoginForm() {
     admin: false,
     adminCode: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Aqui você pode adicionar a lógica de login
     console.log("Dados de login:", formData);
-
-    // Redirecionar para a página de geladeira
-    navigate("/geladeira");
+    setLoading(true);
+    setError(null);
+    try {
+      await authService.signin(formData);
+      navigate("/geladeira");
+    } catch (err: unknown) {
+      let message = "Erro ao fazer login";
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      } else if (typeof err === "object" && err !== null && "message" in err) {
+        const maybeMessage = (err as { message?: unknown }).message;
+        if (typeof maybeMessage === "string") {
+          message = maybeMessage;
+        }
+      }
+      setError(message);
+      setLoading(false);
+      return;
+    
   };
+}
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -28,6 +50,7 @@ export default function LoginForm() {
       [name]: type === "checkbox" ? checked : value,
     });
   };
+
   return (
     <>
       <form onSubmit={handleSubmit} className="text-left">
@@ -41,7 +64,7 @@ export default function LoginForm() {
           value={formData.email}
           onChange={handleChange}
           required
-          className="w-full p-3 mb-6 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
+          className="w-full p-3 mb-2 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
         />
 
         <label htmlFor="senha" className="block mb-2 font-semibold text-[#333]">
@@ -54,11 +77,9 @@ export default function LoginForm() {
           value={formData.senha}
           onChange={handleChange}
           required
-          className="w-full p-3 mb-6 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
+          className="w-full p-3 mb-2 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
         />
-
-        {/* Checkbox Admin */}
-        <div className="flex items-center mb-6">
+        <div className="flex items-center mb-4">
           <input
             type="checkbox"
             id="admin"
@@ -95,9 +116,10 @@ export default function LoginForm() {
 
         <button
           type="submit"
-          className="w-full p-3 rounded-[20px] border-2 border-[#333] text-lg font-bold cursor-pointer bg-[#90EE90] text-[#333] hover:bg-[#7CFC00] transition-colors duration-300 mb-6"
+          disabled={loading}
+          className="w-full p-3 rounded-[20px] border-2 border-[#333] text-lg font-bold cursor-pointer bg-[#90EE90] text-[#333] hover:bg-[#7CFC00] transition-colors duration-300 mb-6 disabled:opacity-60"
         >
-          LOGIN
+          {loading ? 'Entrando...' : 'LOGIN'}
         </button>
       </form>
     </>
