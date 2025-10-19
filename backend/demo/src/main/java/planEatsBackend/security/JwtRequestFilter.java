@@ -3,7 +3,7 @@ package planEatsBackend.security;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+//import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import planEatsBackend.service.TokenBlacklistService;
 
-@Component
+//@Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired

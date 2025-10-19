@@ -1,11 +1,12 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { authService } from '../services/auth';
 
 export default function AppHeader() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = () => {
-    // Adicione aqui a lógica de logout se necessário
+    authService.logout();
     navigate('/login');
   };
 
