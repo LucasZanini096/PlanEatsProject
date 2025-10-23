@@ -58,10 +58,7 @@ public class AuthController {
     private UsuarioService usuarioService;
 
     @Autowired
-    private UsuarioRepository usuarioRepository; // ADICIONADO
-
-    @Autowired
-    private PasswordEncoder passwordEncoder; // ADICIONADO
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
