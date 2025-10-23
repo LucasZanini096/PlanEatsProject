@@ -3,6 +3,7 @@ package planEatsBackend.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import planEatsBackend.entities.Role;
 
 public class RegisterRequest {
@@ -19,6 +20,10 @@ public class RegisterRequest {
 
   @NotNull
   private Role role = Role.USER;
+
+  // Teste chave de admin com 6 caracteres
+  @Size(min = 6)
+  private String adminKey; 
 
   // Getters and Setters
   // TODO: Praticas de seguranca
@@ -60,6 +65,14 @@ public class RegisterRequest {
 
   public void setRole(Role role) {
     this.role = role;
+  }
+
+  public String getAdminKey() {
+    return adminKey;
+  }
+
+  public void setAdminKey(String adminKey) {
+    this.adminKey = adminKey;
   }
 
 }

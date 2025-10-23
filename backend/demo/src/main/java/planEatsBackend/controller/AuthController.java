@@ -10,16 +10,30 @@ import planEatsBackend.dto.RegisterRequest;
 import planEatsBackend.dto.UsuarioDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import planEatsBackend.service.TokenBlacklistService;
-import planEatsBackend.security.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import planEatsBackend.dto.LoginRequest;
+import planEatsBackend.dto.RegisterRequest;
+import planEatsBackend.entities.Admin;
+import planEatsBackend.entities.Role;
+import planEatsBackend.entities.Usuario;
 import planEatsBackend.mapper.UsuarioMapper;
+import planEatsBackend.repository.UsuarioRepository;
+import planEatsBackend.security.JwtUtil; // ADICIONADO
+import planEatsBackend.service.TokenBlacklistService;
 import planEatsBackend.service.UsuarioService;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,20 +58,49 @@ public class AuthController {
     private UsuarioService usuarioService;
 
     @Autowired
+    private UsuarioRepository usuarioRepository; // ADICIONADO
+
+    @Autowired
+    private PasswordEncoder passwordEncoder; // ADICIONADO
+
+    @Autowired
     private UsuarioRepository usuarioRepository;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
+        var auth = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getSenha())
         );
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // buscar o usuário (para verificar adminKey se for Admin)
+        Usuario usuario = usuarioRepository.findByEmail(loginRequest.getEmail())
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
-        String jwt = jwtUtil.generateToken(loginRequest.getEmail());
+        if (usuario.getRole() == Role.ADMIN) {
+            // verifica adminKey enviada no request contra o hash armazenado
+            if (!(usuario instanceof Admin)) {
+                return ResponseEntity.status(403).body(Map.of("error", "Conta não é admin"));
+            }
+            Admin admin = (Admin) usuario;
+            if (loginRequest.getAdminKey() == null || !passwordEncoder.matches(loginRequest.getAdminKey(), admin.getAdminKey())) {
+                return ResponseEntity.status(401).body(Map.of("error", "Admin key inválida"));
+            }
+        }
 
-        // Retorna um JSON simples com o token; substitua por JwtResponse se preferir
+        String jwt = jwtUtil.generateToken(auth.getName());
         return ResponseEntity.ok(Map.of("token", jwt, "type", "Bearer"));
+    }
+
+    @GetMapping("/is-admin")
+    public ResponseEntity<Map<String, Boolean>> isAdmin(Authentication authentication) {
+        boolean isAdmin = false;
+        if (authentication != null && authentication.isAuthenticated()) {
+            isAdmin = authentication.getAuthorities()
+                    .stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        }
+        return ResponseEntity.ok(Map.of("isAdmin", isAdmin));
     }
 
     @PostMapping("/logout")

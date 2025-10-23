@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import planEatsBackend.dto.RegisterRequest;
+import planEatsBackend.entities.Admin;
+import planEatsBackend.entities.Role;
 import planEatsBackend.entities.Usuario;
 import planEatsBackend.exception.ResourceNotFoundException;
 import planEatsBackend.repository.UsuarioRepository;
@@ -31,13 +33,31 @@ public class UsuarioService {
         if (usuarioRepository.existsByEmail(req.getEmail())) {
             throw new IllegalArgumentException("Email já cadastrado");
         }
-        Usuario u = new Usuario();
-        u.setNome(req.getNome());
-        u.setEmail(req.getEmail());
-        u.setSenhaHash(passwordEncoder.encode(req.getSenha())); // ajuste conforme o nome do campo na entidade
-        u.setPreferenciasAlimentares(req.getPreferenciasAlimentares());
-        u.setRole(req.getRole()); // role é do tipo Role (enum)
-        return usuarioRepository.save(u);
+
+        String senhaHash = passwordEncoder.encode(req.getSenha());
+
+        if (req.getRole() == Role.ADMIN) {
+            if (req.getAdminKey() == null || req.getAdminKey().length() < 6) {
+                throw new IllegalArgumentException("AdminKey necessária e com mínimo de 6 caracteres");
+            }
+            Admin admin = new Admin();
+            admin.setNome(req.getNome());
+            admin.setEmail(req.getEmail());
+            admin.setSenhaHash(senhaHash);
+            admin.setPreferenciasAlimentares(req.getPreferenciasAlimentares());
+            admin.setRole(Role.ADMIN);
+            // salvar hash da admin key
+            admin.setAdminKey(passwordEncoder.encode(req.getAdminKey()));
+            return usuarioRepository.save(admin);
+        } else {
+            Usuario user = new Usuario();
+            user.setNome(req.getNome());
+            user.setEmail(req.getEmail());
+            user.setSenhaHash(senhaHash);
+            user.setPreferenciasAlimentares(req.getPreferenciasAlimentares());
+            user.setRole(Role.USER);
+            return usuarioRepository.save(user);
+        }
     }
 
     public void deleteById(Long id) {
