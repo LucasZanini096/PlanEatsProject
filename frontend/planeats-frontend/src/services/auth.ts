@@ -1,3 +1,8 @@
+import type { LoginRequest } from '../interfaces/LoginRequest';
+import type { LoginResponse } from '../interfaces/LoginResponse';
+import type { RegisterRequest } from '../interfaces/RegisterRequest';
+import type { Usuario } from '../interfaces/Usuario';
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 
@@ -5,22 +10,7 @@ const AUTH_BASE = `${API_BASE_URL}/api/auth`;
 
 const TOKEN_KEY = 'authToken';
 
-export interface LoginRequest {
-  email: string;
-  senha: string;
-}
 
-export interface LoginResponse {
-  token: string;
-  type: string; // "Bearer"
-}
-
-export interface RegisterRequest {
-  nome?: string;
-  email: string;
-  senha: string;
-  [key: string]: unknown; // permite campos extras, caso o backend exija
-}
 
 function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -95,6 +85,17 @@ export async function logout(): Promise<void> {
   }
 }
 
+export async function getCurrentUser(): Promise<Usuario | null> {
+  const token = getToken();
+  if (!token) return null;
+  
+  const res = await fetch(`${AUTH_BASE}/myinfo`, {
+    method: 'GET',
+    headers: authHeader(),
+  });
+  return parseOrThrow(res);
+}
+
 export function isAuthenticated(): boolean {
   return !!getToken();
 }
@@ -112,4 +113,5 @@ export const authService = {
   getToken,
   setToken,
   clearToken,
+  getCurrentUser
 };

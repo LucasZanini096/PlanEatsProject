@@ -1,5 +1,8 @@
 package planEatsBackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -12,6 +15,7 @@ public class Geladeira {
 
   @ManyToOne
   @JoinColumn(name = "usuario_id", nullable = false)
+  @JsonBackReference
   private Usuario usuario;
 
   @ManyToOne

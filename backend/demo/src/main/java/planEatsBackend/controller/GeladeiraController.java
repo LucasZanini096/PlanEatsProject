@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import planEatsBackend.dto.GeladeiraDto;
+import planEatsBackend.dto.IncreaseGeladeiraDto;
 import planEatsBackend.entities.Geladeira;
 import planEatsBackend.entities.Usuario;
 import planEatsBackend.repository.UsuarioRepository;
@@ -36,14 +37,8 @@ public class GeladeiraController {
 
   @PostMapping
   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-  public ResponseEntity<?> adicionarIngredienteNaGeladeira(@RequestBody GeladeiraDto dto) {
+  public ResponseEntity<?> adicionarIngredienteNaGeladeira(@RequestBody IncreaseGeladeiraDto dto) {
     Usuario usuarioAutenticado = obterUsuarioAutenticado();
-
-    // Verificar se o usuário está tentando adicionar ingrediente na própria geladeira
-    if (!usuarioAutenticado.getId().equals(dto.getUsuarioId())) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN)
-          .body("Você não pode adicionar ingredientes na geladeira de outro usuário");
-    }
     
     Geladeira salva = geladeiraService.adicionarIngrediente(usuarioAutenticado, dto);
     return ResponseEntity.status(HttpStatus.CREATED).body(salva);

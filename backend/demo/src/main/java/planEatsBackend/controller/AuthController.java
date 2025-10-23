@@ -5,8 +5,9 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
+
 import planEatsBackend.dto.RegisterRequest;
+import planEatsBackend.dto.UsuarioDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +21,11 @@ import planEatsBackend.security.JwtUtil;
 import planEatsBackend.dto.LoginRequest;
 import planEatsBackend.mapper.UsuarioMapper;
 import planEatsBackend.service.UsuarioService;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import planEatsBackend.entities.Usuario;
+import planEatsBackend.repository.UsuarioRepository;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,6 +42,9 @@ public class AuthController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -86,6 +95,14 @@ public class AuthController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/myinfo")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<UsuarioDto> obterUsuarioAutenticado() {
+        Usuario usuario = usuarioRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName())
+            .orElseThrow(() -> new RuntimeException("Usuário autenticado não encontrado"));
+        return ResponseEntity.ok(UsuarioMapper.toDto(usuario));
     }
 
     private String extractJwtFromRequest(HttpServletRequest request) {

@@ -17,7 +17,6 @@ export default function LoginForm() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Aqui você pode adicionar a lógica de login
     console.log("Dados de login:", formData);
     setLoading(true);
     setError(null);

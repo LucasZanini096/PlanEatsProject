@@ -2,6 +2,8 @@ package planEatsBackend.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -46,6 +48,7 @@ public class Usuario {
   private Role role = Role.USER;
 
   @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+  @JsonManagedReference
   private List<Geladeira> geladeira;
 
 

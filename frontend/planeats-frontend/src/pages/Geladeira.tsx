@@ -1,150 +1,362 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
-
-interface Ingredient {
-  id: number;
-  name: string;
-  quantity: number;
-}
+import { geladeiraService } from '../services/geladeira';
+import { ingredienteService } from '../services/ingrediente';
+import { authService } from '../services/auth'
+import type { ItemGeladeira } from '../interfaces/ItemGeladeira'
+import type { Ingrediente } from '../interfaces/Ingrediente';
 
 export default function Geladeira() {
+  const navigate = useNavigate();
   const [ingredientName, setIngredientName] = useState('');
   const [quantity, setQuantity] = useState(1);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { id: 1, name: 'Maçã', quantity: 3 },
-    { id: 2, name: 'Banana', quantity: 2 },
-    { id: 3, name: 'Frango', quantity: 1 },
-    { id: 4, name: 'Arroz', quantity: 5 },
-    { id: 5, name: 'Feijão', quantity: 2 },
-    { id: 6, name: 'Tomate', quantity: 4 },
-  ]);
+  const [ingredients, setIngredients] = useState<ItemGeladeira[]>([]);
+  const [availableIngredients, setAvailableIngredients] = useState<Ingrediente[]>([]);
+  const [selectedIngredientId, setSelectedIngredientId] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
+  const [isAddingNew, setIsAddingNew] = useState(false);
 
-  const handleAddIngredient = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (ingredientName.trim()) {
-      const newIngredient: Ingredient = {
-        id: Date.now(),
-        name: ingredientName,
-        quantity: quantity,
-      };
-      setIngredients([...ingredients, newIngredient]);
-      setIngredientName('');
-      setQuantity(1);
+  useEffect(() => {
+    // Verificar autenticação
+    if (!authService.isAuthenticated()) {
+      navigate('/login');
+      return;
+    }
+    
+    carregarDados();
+  }, [navigate]);
+
+  const carregarDados = async () => {
+    try {
+      setError('');
+      const [geladeira, listaIngredientes] = await Promise.all([
+        geladeiraService.minhaGeladeira(),
+        ingredienteService.listarIngredientes(),
+      ]);
+      
+      setIngredients(geladeira);
+      setAvailableIngredients(listaIngredientes);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar dados';
+      setError(errorMessage);
+      console.error('Erro ao carregar dados:', err);
+      
+      // Se for erro de autenticação, redirecionar para login
+      if (errorMessage.includes('401') || errorMessage.includes('403')) {
+        authService.clearToken();
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const updateIngredientQuantity = (id: number, delta: number) => {
-    setIngredients(
-      ingredients
-        .map((ing) =>
-          ing.id === id
-            ? { ...ing, quantity: Math.max(0, ing.quantity + delta) }
-            : ing
-        )
-        .filter((ing) => ing.quantity > 0)
-    );
+  const handleAddNewIngredient = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!ingredientName.trim()) {
+      setError('Nome do ingrediente é obrigatório');
+      return;
+    }
+
+    try {
+      setError('');
+      setLoading(true);
+      
+      // Criar novo ingrediente no sistema
+      const novoIngrediente = await ingredienteService.criarIngrediente(ingredientName);
+
+      // Adicionar o ingrediente à geladeira
+      await geladeiraService.adicionarIngrediente({
+        ingredienteId: novoIngrediente.id!,
+        quantidade: quantity,
+      });
+      
+      // Recarregar dados
+      await carregarDados();
+      
+      // Limpar formulário
+      setIngredientName('');
+      setQuantity(1);
+      setIsAddingNew(false);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao adicionar ingrediente';
+      setError(errorMessage);
+      console.error('Erro ao adicionar ingrediente:', err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleAddExistingIngredient = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!selectedIngredientId) {
+      setError('Selecione um ingrediente');
+      return;
+    }
+
+    try {
+      setError('');
+      setLoading(true);
+    
+
+      await geladeiraService.adicionarIngrediente({
+        ingredienteId: selectedIngredientId,
+        quantidade: quantity,
+      });
+      
+      await carregarDados();
+      
+      setSelectedIngredientId(0);
+      setQuantity(1);
+      setIsAddingNew(false);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao adicionar ingrediente';
+      setError(errorMessage);
+      console.error('Erro ao adicionar ingrediente:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateIngredientQuantity = async (id: number, delta: number) => {
+    try {
+      setError('');
+      
+      if (delta > 0) {
+        await geladeiraService.incrementarQuantidade(id);
+      } else {
+        await geladeiraService.decrementarQuantidade(id);
+      }
+      
+      await carregarDados();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao atualizar quantidade';
+      setError(errorMessage);
+      console.error('Erro ao atualizar quantidade:', err);
+    }
+  };
+
+  if (loading && ingredients.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#F0EAD6]">
+        <AppHeader />
+        <main className="p-8 max-w-[900px] mx-auto text-center">
+          <p className="text-xl">Carregando...</p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F0EAD6]">
       <AppHeader />
 
       <main className="p-8 max-w-[900px] mx-auto text-center">
+        {/* Mensagem de erro */}
+        {error && (
+          <div className="bg-red-100 border-2 border-red-400 text-red-700 px-4 py-3 rounded-[15px] mb-6">
+            {error}
+          </div>
+        )}
+
         {/* Seção Adicionar Ingrediente */}
         <section>
           <h2 className="text-[2rem] font-bold mt-4 mb-8">
             Adicionar ingrediente
           </h2>
-          <form
-            onSubmit={handleAddIngredient}
-            className="flex justify-center items-center flex-wrap gap-6 mb-12"
-          >
-            <div className="text-left">
-              <label
-                htmlFor="ingrediente"
-                className="block mb-2 font-semibold"
-              >
-                Ingrediente
-              </label>
-              <input
-                type="text"
-                id="ingrediente"
-                name="ingrediente"
-                value={ingredientName}
-                onChange={(e) => setIngredientName(e.target.value)}
-                className="p-3 border-2 border-[#333] rounded-[15px] bg-white text-base w-[250px]"
-              />
-            </div>
-            <div className="text-left">
-              <label htmlFor="quantidade" className="block mb-2 font-semibold">
-                Quantidade
-              </label>
-              <div className="flex items-center border-2 border-[#333] rounded-[15px] overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-3 px-4 cursor-pointer"
-                >
-                  -
-                </button>
-                <span className="py-3 px-5 bg-white text-base font-semibold">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-3 px-4 cursor-pointer"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="bg-[#90EE90] text-[#333] py-3 px-8 rounded-[20px] border-2 border-[#333] text-base font-bold cursor-pointer self-end hover:bg-[#7CFC00] transition-colors"
-            >
-              Adicionar
-            </button>
-          </form>
-        </section>
 
-        {/* Seção Meus Ingredientes */}
-        <section>
-          <h2 className="text-[2rem] font-bold mt-4 mb-8">Meus ingredientes</h2>
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6">
-            {ingredients.map((ingredient) => (
-              <div
-                key={ingredient.id}
-                className="flex items-center justify-between bg-white p-2 px-4 border-2 border-[#333] rounded-[20px]"
-              >
-                <div className="flex items-center gap-4 font-semibold">
-                  <div className="w-[30px] h-[30px] bg-[#E0E0E0] rounded-full flex justify-center items-center">
-                    <div className="w-[15px] h-[15px] bg-red-500 rounded-full"></div>
-                  </div>
-                  <span>
-                    {ingredient.quantity} {ingredient.name}
-                  </span>
-                </div>
+          {/* Toggle entre adicionar novo ou existente */}
+          <div className="flex justify-center gap-4 mb-6">
+            <button
+              onClick={() => setIsAddingNew(false)}
+              className={`py-2 px-6 rounded-[15px] border-2 border-[#333] font-semibold transition-colors ${
+                !isAddingNew
+                  ? 'bg-[#FFB366] text-[#333]'
+                  : 'bg-white text-[#333] hover:bg-gray-100'
+              }`}
+            >
+              Ingrediente Existente
+            </button>
+            <button
+              onClick={() => setIsAddingNew(true)}
+              className={`py-2 px-6 rounded-[15px] border-2 border-[#333] font-semibold transition-colors ${
+                isAddingNew
+                  ? 'bg-[#FFB366] text-[#333]'
+                  : 'bg-white text-[#333] hover:bg-gray-100'
+              }`}
+            >
+              Novo Ingrediente
+            </button>
+          </div>
+
+          {/* Formulário para ingrediente existente */}
+          {!isAddingNew && (
+            <form
+              onSubmit={handleAddExistingIngredient}
+              className="flex justify-center items-center flex-wrap gap-6 mb-12"
+            >
+              <div className="text-left">
+                <label htmlFor="ingrediente-select" className="block mb-2 font-semibold">
+                  Ingrediente
+                </label>
+                <select
+                  id="ingrediente-select"
+                  value={selectedIngredientId}
+                  onChange={(e) => setSelectedIngredientId(Number(e.target.value))}
+                  className="p-3 border-2 border-[#333] rounded-[15px] bg-white text-base w-[250px]"
+                  disabled={loading}
+                >
+                  <option value={0}>Selecione um ingrediente</option>
+                  {availableIngredients.map((ing) => (
+                    <option key={ing.id} value={ing.id}>
+                      {ing.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="text-left">
+                <label htmlFor="quantidade" className="block mb-2 font-semibold">
+                  Quantidade
+                </label>
                 <div className="flex items-center border-2 border-[#333] rounded-[15px] overflow-hidden">
                   <button
                     type="button"
-                    onClick={() => updateIngredientQuantity(ingredient.id, -1)}
-                    className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-2 px-3 cursor-pointer"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-3 px-4 cursor-pointer hover:bg-[#FF9933] transition-colors"
+                    disabled={loading}
                   >
                     -
                   </button>
+                  <span className="py-3 px-5 bg-white text-base font-semibold">
+                    {quantity}
+                  </span>
                   <button
                     type="button"
-                    onClick={() => updateIngredientQuantity(ingredient.id, 1)}
-                    className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-2 px-3 cursor-pointer"
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-3 px-4 cursor-pointer hover:bg-[#FF9933] transition-colors"
+                    disabled={loading}
                   >
                     +
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
+              <button
+                type="submit"
+                disabled={loading || !selectedIngredientId}
+                className="bg-[#90EE90] text-[#333] py-3 px-8 rounded-[20px] border-2 border-[#333] text-base font-bold cursor-pointer self-end hover:bg-[#7CFC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Adicionando...' : 'Adicionar'}
+              </button>
+            </form>
+          )}
+
+          {/* Formulário para novo ingrediente */}
+          {isAddingNew && (
+            <form
+              onSubmit={handleAddNewIngredient}
+              className="flex justify-center items-center flex-wrap gap-6 mb-12"
+            >
+              <div className="text-left">
+                <label htmlFor="ingrediente-novo" className="block mb-2 font-semibold">
+                  Nome do Ingrediente
+                </label>
+                <input
+                  type="text"
+                  id="ingrediente-novo"
+                  value={ingredientName}
+                  onChange={(e) => setIngredientName(e.target.value)}
+                  className="p-3 border-2 border-[#333] rounded-[15px] bg-white text-base w-[250px]"
+                  placeholder="Ex: Tomate"
+                  disabled={loading}
+                />
+              </div>
+              <div className="text-left">
+                <label htmlFor="quantidade-novo" className="block mb-2 font-semibold">
+                  Quantidade
+                </label>
+                <div className="flex items-center border-2 border-[#333] rounded-[15px] overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-3 px-4 cursor-pointer hover:bg-[#FF9933] transition-colors"
+                    disabled={loading}
+                  >
+                    -
+                  </button>
+                  <span className="py-3 px-5 bg-white text-base font-semibold">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-3 px-4 cursor-pointer hover:bg-[#FF9933] transition-colors"
+                    disabled={loading}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={loading || !ingredientName.trim()}
+                className="bg-[#90EE90] text-[#333] py-3 px-8 rounded-[20px] border-2 border-[#333] text-base font-bold cursor-pointer self-end hover:bg-[#7CFC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Criando...' : 'Criar e Adicionar'}
+              </button>
+            </form>
+          )}
+        </section>
+
+        {/* Seção Meus Ingredientes */}
+        <section>
+          <h2 className="text-[2rem] font-bold mt-4 mb-8">Meus ingredientes</h2>
+          
+          {ingredients.length === 0 ? (
+            <p className="text-gray-600 text-lg">
+              Você ainda não tem ingredientes na sua geladeira.
+            </p>
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6">
+              {ingredients.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between bg-white p-2 px-4 border-2 border-[#333] rounded-[20px]"
+                >
+                  <div className="flex items-center gap-4 font-semibold">
+                    <div className="w-[30px] h-[30px] bg-[#E0E0E0] rounded-full flex justify-center items-center">
+                      <div className="w-[15px] h-[15px] bg-red-500 rounded-full"></div>
+                    </div>
+                    <span>
+                      {item.quantidade} {item.ingrediente.nome}
+                    </span>
+                  </div>
+                  <div className="flex items-center border-2 border-[#333] rounded-[15px] overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => updateIngredientQuantity(item.id!, -1)}
+                      className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-2 px-3 cursor-pointer hover:bg-[#FF9933] transition-colors disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      -
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateIngredientQuantity(item.id!, 1)}
+                      className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-2 px-3 cursor-pointer hover:bg-[#FF9933] transition-colors disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </main>
     </div>

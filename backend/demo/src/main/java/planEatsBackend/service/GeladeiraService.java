@@ -3,11 +3,13 @@ package planEatsBackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import planEatsBackend.dto.GeladeiraDto;
+import planEatsBackend.dto.IncreaseGeladeiraDto;
 import planEatsBackend.entities.Geladeira;
 import planEatsBackend.entities.Ingrediente;
 import planEatsBackend.entities.Usuario;
 import planEatsBackend.repository.GeladeiraRepository;
 import planEatsBackend.repository.IngredienteRepository;
+import planEatsBackend.dto.IncreaseGeladeiraDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +23,7 @@ public class GeladeiraService {
   @Autowired
   private IngredienteRepository ingredienteRepository;
 
-  public Geladeira adicionarIngrediente(Usuario usuario, GeladeiraDto dto) {
+  public Geladeira adicionarIngrediente(Usuario usuario, IncreaseGeladeiraDto dto) {
     Ingrediente ingrediente = ingredienteRepository.findById(dto.getIngredienteId())
         .orElseThrow(() -> new RuntimeException("Ingrediente não encontrado"));
 
