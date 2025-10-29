@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
-import { geladeiraService } from '../services/geladeira';
-import { ingredienteService } from '../services/ingrediente';
-import { authService } from '../services/auth'
+import { geladeiraService } from '../services/geladeiraService';
+import { ingredienteService } from '../services/ingredienteService';
+import { authService } from '../services/authService'
 import type { ItemGeladeira } from '../interfaces/ItemGeladeira'
 import type { Ingrediente } from '../interfaces/Ingrediente';
 

@@ -1,4 +1,4 @@
-import { getAuthHeader } from './auth';
+import { getAuthHeader } from './authService';
 import type { Ingrediente } from '../interfaces/Ingrediente'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';

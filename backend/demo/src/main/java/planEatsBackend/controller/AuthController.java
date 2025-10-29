@@ -10,7 +10,6 @@ import planEatsBackend.dto.RegisterRequest;
 import planEatsBackend.dto.UsuarioDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,11 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import planEatsBackend.dto.LoginRequest;
-import planEatsBackend.dto.RegisterRequest;
 import planEatsBackend.entities.Admin;
 import planEatsBackend.entities.Role;
 import planEatsBackend.entities.Usuario;
@@ -37,8 +32,6 @@ import planEatsBackend.service.TokenBlacklistService;
 import planEatsBackend.service.UsuarioService;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import planEatsBackend.entities.Usuario;
-import planEatsBackend.repository.UsuarioRepository;
 
 
 @RestController

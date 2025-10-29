@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { authService } from '../services/auth';
+import { authService } from '../services/authService';
 
 export default function AppHeader() {
   const navigate = useNavigate();

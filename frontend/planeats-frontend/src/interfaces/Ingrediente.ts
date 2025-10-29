@@ -1,4 +1,4 @@
 export interface Ingrediente {
-  id: number | undefined;
-  nome: string | undefined;
+  id: number;
+  nome: string;
 }

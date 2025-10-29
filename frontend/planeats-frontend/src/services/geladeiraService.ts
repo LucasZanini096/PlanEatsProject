@@ -1,4 +1,4 @@
-import { getAuthHeader } from './auth';
+import { getAuthHeader } from './authService';
 import type { ItemGeladeira } from '../interfaces/ItemGeladeira';
 import type { AdicionarIngrediente } from '../interfaces/AdicionarIngrediente';
 

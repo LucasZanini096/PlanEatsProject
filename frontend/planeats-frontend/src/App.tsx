@@ -7,6 +7,7 @@ import Receitas from './pages/Receitas';
 import SalvarReceita from './pages/SalvarReceita';
 import AdminUsers from './pages/AdminUsers';
 import './App.css';
+import DetalheReceita from './pages/DetalheReceita';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/salvar-receita" element={<SalvarReceita />} />
         <Route path="/salvar-receita/:id" element={<SalvarReceita />} />
         <Route path="/admin" element={<AdminUsers />} />
+        <Route path="/receita/:id" element={<DetalheReceita />} />
       </Routes>
     </Router>
   );
