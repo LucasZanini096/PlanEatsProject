@@ -2,7 +2,8 @@ import type { ReceitaRequest } from '../interfaces/ReceitaRequest';
 import type { ReceitaResponse } from '../interfaces/ReceitaResponse';
 import { getAuthHeader } from './authService';
 
-const API_URL = 'http://localhost:8080/api/receitas';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
+const API_URL = `${API_BASE_URL}/api/receitas`;
 
 async function parseOrThrow(res: Response) {
   const text = await res.text();

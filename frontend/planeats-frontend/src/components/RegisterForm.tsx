@@ -40,6 +40,8 @@ export default function RegisterForm() {
         senha: formData.senha,
       });
 
+      alert("Registo concluído com sucesso!");
+
       navigate('/geladeira');
     } catch (error: unknown) {
       setError((error as Error)?.message ?? 'Falha no cadastro');

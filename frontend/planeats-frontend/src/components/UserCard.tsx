@@ -1,37 +1,32 @@
-import type { UserCardInterface } from '../interfaces/UserCardInterface'
+import type { UserCardInterface } from '../interfaces/UserCardInterface';
 
-export default function UserCard(user: UserCardInterface) {
+interface UserCardProps extends UserCardInterface {
+  onDelete?: () => void;
+}
 
+export default function UserCard({ name, role, image, onDelete }: UserCardProps) {
   return (
-    <>
-       <div
-          key={user.id}
-          className="flex items-center bg-white border-2 border-[#333] rounded-[15px] overflow-hidden text-left cursor-pointer transition-transform hover:scale-[1.02]"
-        >
-          <img
-            src={user.image}
-            alt={`Foto de ${user.name}`}
-            className="w-[100px] h-[80px] object-cover"
-          />
-          <div className='w-full flex justify-between'>
-              <p className="px-6 font-semibold text-lg m-0">
-                {user.name}
-              </p>
-
-               <p className="px-6 font-semibold text-lg m-0">
-                {user.role}
-              </p>
-          </div>
-
-
-          <button
-            className="bg-[#FFB366] border-none px-8 self-stretch cursor-pointer transition-colors hover:bg-[#ff9f43] relative z-[2]"
-          >
-            <i className="fa-solid fa-trash text-2xl text-white"></i>
-          </button>
+    <div className="bg-[#FFB366] p-6 rounded-[25px] border-2 border-[#333] flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <img
+          src={image}
+          alt={name}
+          className="w-20 h-20 rounded-full border-2 border-[#333] object-cover"
+        />
+        <div>
+          <h3 className="text-xl font-bold text-[#333]">{name}</h3>
+          <p className="text-[#543D2B]">{role}</p>
         </div>
-    
-    </>
-  )
-  
+      </div>
+      
+      {onDelete && (
+        <button
+          onClick={onDelete}
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-[15px] border-2 border-[#333] transition-colors cursor-pointer"
+        >
+          Deletar
+        </button>
+      )}
+    </div>
+  );
 }

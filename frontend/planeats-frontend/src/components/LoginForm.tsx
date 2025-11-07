@@ -9,7 +9,7 @@ export default function LoginForm() {
     email: "",
     senha: "",
     admin: false,
-    adminCode: "",
+    adminKey: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,12 +17,30 @@ export default function LoginForm() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log("Dados de login:", formData);
     setLoading(true);
     setError(null);
+    
     try {
-      await authService.signin(formData);
-      navigate("/geladeira");
+      const loginPayload: any = {
+        email: formData.email,
+        senha: formData.senha,
+      };
+
+      // Adiciona adminKey apenas se o checkbox admin estiver marcado
+      if (formData.admin) {
+        loginPayload.adminKey = formData.adminKey;
+      }
+
+      await authService.signin(loginPayload);
+
+      alert("Login realizado com sucesso!");
+      
+      // Redireciona para admin ou geladeira baseado no tipo de usuário
+      if (formData.admin) {
+        navigate("/admin");
+      } else {
+        navigate("/geladeira");
+      }
     } catch (err: unknown) {
       let message = "Erro ao fazer login";
       if (err instanceof Error) {
@@ -36,11 +54,10 @@ export default function LoginForm() {
         }
       }
       setError(message);
+    } finally {
       setLoading(false);
-      return;
-    
+    }
   };
-}
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -78,6 +95,7 @@ export default function LoginForm() {
           required
           className="w-full p-3 mb-2 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
         />
+        
         <div className="flex items-center mb-4">
           <input
             type="checkbox"
@@ -92,26 +110,27 @@ export default function LoginForm() {
           </label>
         </div>
 
-        {/* Renderiza o campo apenas quando admin for true */}
         {formData.admin && (
           <div className="mb-6">
             <label
-              htmlFor="adminCode"
+              htmlFor="adminKey"
               className="block mb-2 font-semibold text-[#333]"
             >
               Código do Administrador
             </label>
             <input
-              type="text"
-              id="adminCode"
-              name="adminCode"
-              value={formData.adminCode}
+              type="password"
+              id="adminKey"
+              name="adminKey"
+              value={formData.adminKey}
               onChange={handleChange}
-              required={formData.admin} // required só quando admin === true
+              required={formData.admin}
               className="w-full p-3 mb-6 border-2 border-[#333] rounded-[15px] bg-[#E0E0E0] text-base box-border"
             />
           </div>
         )}
+
+        {error && <p className="text-red-600 mb-3">{error}</p>}
 
         <button
           type="submit"

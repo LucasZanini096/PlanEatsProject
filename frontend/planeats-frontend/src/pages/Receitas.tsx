@@ -46,7 +46,8 @@ export default function Receitas() {
 
     try {
       await receitaService.deletarReceita(id);
-      setRecipes(recipes.filter((recipe) => recipe.id !== id));
+      //setRecipes(recipes.filter((recipe) => recipe.id !== id));
+      carregarReceitas();
     } catch (error) {
       console.error('Erro ao deletar receita:', error);
       alert('Erro ao deletar receita. Tente novamente.');

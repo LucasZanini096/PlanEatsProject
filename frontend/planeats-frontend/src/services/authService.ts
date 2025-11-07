@@ -82,6 +82,7 @@ export async function logout(): Promise<void> {
     
   } finally {
     clearToken();
+    alert("Logout realizado com sucesso!")
   }
 }
 

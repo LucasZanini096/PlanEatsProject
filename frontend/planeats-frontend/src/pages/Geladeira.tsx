@@ -27,6 +27,7 @@ export default function Geladeira() {
     }
     
     carregarDados();
+    setIsAddingNew(true);
   }, [navigate]);
 
   const carregarDados = async () => {
@@ -91,38 +92,6 @@ export default function Geladeira() {
     }
   };
 
-  const handleAddExistingIngredient = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    if (!selectedIngredientId) {
-      setError('Selecione um ingrediente');
-      return;
-    }
-
-    try {
-      setError('');
-      setLoading(true);
-    
-
-      await geladeiraService.adicionarIngrediente({
-        ingredienteId: selectedIngredientId,
-        quantidade: quantity,
-      });
-      
-      await carregarDados();
-      
-      setSelectedIngredientId(0);
-      setQuantity(1);
-      setIsAddingNew(false);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao adicionar ingrediente';
-      setError(errorMessage);
-      console.error('Erro ao adicionar ingrediente:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const updateIngredientQuantity = async (id: number, delta: number) => {
     try {
       setError('');
@@ -170,93 +139,7 @@ export default function Geladeira() {
             Adicionar ingrediente
           </h2>
 
-          {/* Toggle entre adicionar novo ou existente */}
-          <div className="flex justify-center gap-4 mb-6">
-            <button
-              onClick={() => setIsAddingNew(false)}
-              className={`py-2 px-6 rounded-[15px] border-2 border-[#333] font-semibold transition-colors ${
-                !isAddingNew
-                  ? 'bg-[#FFB366] text-[#333]'
-                  : 'bg-white text-[#333] hover:bg-gray-100'
-              }`}
-            >
-              Ingrediente Existente
-            </button>
-            <button
-              onClick={() => setIsAddingNew(true)}
-              className={`py-2 px-6 rounded-[15px] border-2 border-[#333] font-semibold transition-colors ${
-                isAddingNew
-                  ? 'bg-[#FFB366] text-[#333]'
-                  : 'bg-white text-[#333] hover:bg-gray-100'
-              }`}
-            >
-              Novo Ingrediente
-            </button>
-          </div>
-
-          {/* Formulário para ingrediente existente */}
-          {!isAddingNew && (
-            <form
-              onSubmit={handleAddExistingIngredient}
-              className="flex justify-center items-center flex-wrap gap-6 mb-12"
-            >
-              <div className="text-left">
-                <label htmlFor="ingrediente-select" className="block mb-2 font-semibold">
-                  Ingrediente
-                </label>
-                <select
-                  id="ingrediente-select"
-                  value={selectedIngredientId}
-                  onChange={(e) => setSelectedIngredientId(Number(e.target.value))}
-                  className="p-3 border-2 border-[#333] rounded-[15px] bg-white text-base w-[250px]"
-                  disabled={loading}
-                >
-                  <option value={0}>Selecione um ingrediente</option>
-                  {availableIngredients.map((ing) => (
-                    <option key={ing.id} value={ing.id}>
-                      {ing.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="text-left">
-                <label htmlFor="quantidade" className="block mb-2 font-semibold">
-                  Quantidade
-                </label>
-                <div className="flex items-center border-2 border-[#333] rounded-[15px] overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-3 px-4 cursor-pointer hover:bg-[#FF9933] transition-colors"
-                    disabled={loading}
-                  >
-                    -
-                  </button>
-                  <span className="py-3 px-5 bg-white text-base font-semibold">
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="bg-[#FFB366] border-none text-[#333] text-xl font-bold py-3 px-4 cursor-pointer hover:bg-[#FF9933] transition-colors"
-                    disabled={loading}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={loading || !selectedIngredientId}
-                className="bg-[#90EE90] text-[#333] py-3 px-8 rounded-[20px] border-2 border-[#333] text-base font-bold cursor-pointer self-end hover:bg-[#7CFC00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Adicionando...' : 'Adicionar'}
-              </button>
-            </form>
-          )}
-
           {/* Formulário para novo ingrediente */}
-          {isAddingNew && (
             <form
               onSubmit={handleAddNewIngredient}
               className="flex justify-center items-center flex-wrap gap-6 mb-12"
@@ -309,7 +192,6 @@ export default function Geladeira() {
                 {loading ? 'Criando...' : 'Criar e Adicionar'}
               </button>
             </form>
-          )}
         </section>
 
         {/* Seção Meus Ingredientes */}
