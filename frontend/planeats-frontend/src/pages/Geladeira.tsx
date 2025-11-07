@@ -14,11 +14,12 @@ export default function Geladeira() {
   const [quantity, setQuantity] = useState(1);
   const [ingredients, setIngredients] = useState<ItemGeladeira[]>([]);
   const [availableIngredients, setAvailableIngredients] = useState<Ingrediente[]>([]);
-  const [selectedIngredientId, setSelectedIngredientId] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [isAddingNew, setIsAddingNew] = useState(false);
 
+  console.log(availableIngredients)
+  console.log(isAddingNew)
   useEffect(() => {
     // Verificar autenticação
     if (!authService.isAuthenticated()) {
