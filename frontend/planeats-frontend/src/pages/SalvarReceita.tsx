@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
 import type { ReceitaResponse } from '../interfaces/ReceitaResponse';
+import { receitaService } from '../services/receitaService';
 
 export default function SalvarReceita() {
   const navigate = useNavigate();
@@ -12,8 +13,18 @@ export default function SalvarReceita() {
     return null;
   }
 
-  const handleDiscardRecipe = () => {
-    navigate('/gerar-receita');
+  const handleDiscardRecipe = async () => {
+
+    try{
+      await receitaService.deletarReceita(receita.id);
+      navigate('/gerar-receita');
+      alert('Receita descartada com sucesso!');
+    }
+    catch(error){
+      console.error('Erro ao descartar receita:', error);
+      alert('Erro ao descartar receita. Tente novamente.');
+    }
+    
   };
 
   const handleSaveRecipe = () => {
