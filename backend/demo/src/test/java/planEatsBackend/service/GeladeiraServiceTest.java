@@ -75,7 +75,8 @@ class GeladeiraServiceTest {
         Geladeira g = new Geladeira();
         g.setQuantidade(1);
 
-        when(geladeiraRepository.delete(any(Geladeira.class))).thenReturn(null);
+        // delete(...) é void, use doNothing() para mockar comportamento
+        doNothing().when(geladeiraRepository).delete(any(Geladeira.class));
 
         Optional<Geladeira> maybe = geladeiraService.decrementarQuantidade(g);
         assertTrue(maybe.isEmpty());
